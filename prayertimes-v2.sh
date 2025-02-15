@@ -3,7 +3,7 @@
 
 
       #################################################################################
-     ##								                                                ##
+     ##								                              ##
     ##  A BASH shell script to get you the days' Islamic Prayer Times in Terminal  ##
    ##                                                                             ##
   ##  Created by Khwaja Mahad Haq (KMAHADH)                                      ##
@@ -61,6 +61,12 @@ helloN="`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/ -O - | se
 
 helloN2=`echo "$helloN" | awk '{print $2}'| sed 's/^/| /'`
 helloN3=`echo "$helloN2" | awk -F/ '{print $1}' | tr -d "\<"`
+
+CurrentP="`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/ -O - | sed -n 's/class="prayername ">\|class="prayername">Upcoming Prayer<br>\([^</span>]*\).*/\1/p'`"
+CurrentP2=`echo "$CurrentP" | awk '{print $2}'| sed 's/^/ /' | sed 's/^[[:space:]]*//'` 
+CurrentP3=`echo "$CurrentP2" | rev | cut -c8- | rev`
+
+
 Current1="`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/  -O - | sed -n 's/"nextPrayerRemainingTime": "\([^"]*\).*/\1/p' |  cut -c 2207- | sed 's/".*//'`"
 
 Current2="`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/  -O - | sed -n 's/Prayer Times in &nbsp;\([^"<]*\).*/\1/p'`"
@@ -71,7 +77,7 @@ Date2="`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/  -O - | se
 
 Date1="`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/  -O - | sed -n 's/			<p>\([^"<]*\).*/\1/p'`"
 
-Nexto=`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/  -O - | sed -n 's/"nextPrayerRemainingTime": "\([^"]*\).*/\1/p' |  cut -c 2213-`
+Nexto=`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/  -O - | sed -n 's/"nextPrayerRemainingTime": "\([^"]*\).*/\1/p' |  cut -c 2209-`
 
 Calcu="`wget -q -U "$uas" https://www.islamicfinder.org/prayer-times/  -O - | sed -n 's/<p class="font-sm font-dark">\([^"<]*\).*/\1/p'`"
 Calc2="`echo $Calcu | sed 's/^.\{0\}//g'`"
@@ -112,17 +118,74 @@ echo "                                   "
 tput cuu1
 tput cuu1
 
-echo -e "\e[7mUpcoming Prayer:                   "
+echo -e "\e[7mUpcoming Prayer:   ${CurrentP3}          "
 echo -ne "  "
-echo -ne ${Current1^}"    coming  in   $Nexto"
+echo -ne ${Current1^}"   Coming  in:  $Nexto"
 
 echo -e "\e[27m"
 
+# Reset
+reset='\033[0m'
+
+#White Background
+BG='\033[47m'
+
+#Black Foreground
+FG='\033[0;30m'
+
+#Black Background
+BG2='\033[40m'
+
+#White Foreground
+FG2='\033[0;37m'
+
+
+echo ""
 echo "+---------------------------------+"
-pr -t -m -w 50 <(echo "${helloN3^}") <(echo "$helloPT2" | cut -c 5-)
+echo "| Today's times                   |"
+echo "+---------------------------------+"
+MainTimes=`pr -t -m -w 50 <(echo "${helloN3^}") <(echo "$helloPT2" | cut -c 5-)`
+
+echo "$MainTimes"
+
+##########################################################################
+#Code for colour alternating colours
+#    
+#echo "$MainTimes" | head -n 2
+#
+#
+#    for i in {1..6}
+#    do
+#    echo
+#echo "$(echo "$MainTimes" | sed -n ''$i'p')"
+#    done
+#
+#
+#var1="\033[0;7m"
+#var2="\033[0;27m"
+#counter=0
+#
+#for j in {1..6}; do
+#  if ((counter % 2 == 0)); then
+#    current="$var1"
+#echo -e "$(echo -e "\033[0;7m$MainTimes" | sed -n ''$j'p')"
+#echo -ne "$(echo -e "\033[0;27m")"
+#  else
+#    current="$var2"
+#echo -e "$(echo -e "\033[0;27m$MainTimes" | sed -n ''$j'p')"    
+#echo -ne "$(echo -e "\033[0;7m")"
+#  fi
+#
+#  ((counter++))
+#done
+#
+#echo -ne "$(echo -e "\033[0;27m")"
+##########################################################################
+
 echo "+---------------------------------+"
 
 echo ""
+
 
 echo "Calculation Method:"
 echo "$Calc"
@@ -148,5 +211,4 @@ done
 echo -en "\033[K\r\b\b\b" #'print' backtrace 
 echo "+---------------------------------+"
 echo ""
-
 
